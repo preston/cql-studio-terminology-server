@@ -1,0 +1,67 @@
+services:
+  hapi-r4-terminology-server:
+    image: docker.io/hapiproject/hapi:v8.6.0-1
+    environment:
+      - spring.main.allow-bean-definition-overriding=true
+      - hapi.fhir.cdshooks.enabled=true
+      - hapi.fhir.cr.enabled=true
+      - spring.datasource.url=jdbc:postgresql://hapi-fhir-terminology-postgresql:5432/postgres
+      - spring.datasource.password=password
+      - hapi.fhir.fhir_version=R4
+      - hapi.fhir.allow_cascading_deletes=true
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      - hapi.fhir.allow_multiple_delete=true
+      - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.bulk_import_enabled=true
+      - hapi.fhir.expunge_enabled=true
+      - hapi.fhir.allow_external_references=true
+      - spring.datasource.username=postgres
+      - spring.jpa.properties.hibernate.search.enabled=true
+      - spring.jpa.properties.hibernate.search.backend.type=lucene
+      - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
+      - JAVA_TOOL_OPTIONS=-Xms2g -Xmx10g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+    ports:
+      - 8282:8080
+    volumes: []
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 10G
+        reservations:
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+    configs: []
+    networks:
+      - hapi-fhir_network
+  hapi-fhir-terminology-postgresql:
+    image: docker.io/postgres:18
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+    volumes: []
+    deploy:
+      replicas: 1
+      resources:
+        limits: {}
+        reservations:
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+    configs: []
+    networks:
+      - hapi-fhir_network
+networks:
+  hapi-fhir_network:
+    name: hapi-fhir_network
+volumes: {}
+configs: {}

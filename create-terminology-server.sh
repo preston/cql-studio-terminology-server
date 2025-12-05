@@ -37,7 +37,7 @@ if [ -z "$SNOMED_ZIP" ] && [ -z "$LOINC_ZIP" ] && [ -z "$ICD10_ZIP" ]; then
 fi
 
 echo "Starting HAPI FHIR JPA terminology server and PostgreSQL database..."
-docker compose -f docker-compose-hapi-postgres.yml up --pull always --remove-orphans --detach
+docker compose -f docker-compose-hapi-postgres-new.yml up --pull always --remove-orphans --detach
 
 echo "Waiting for HAPI FHIR terminology server to be ready..."
 while ! curl -s --head --request GET http://$TERMINOLOGY_HOST:$TERMINOLOGY_PORT/fhir/metadata | grep "200"; do sleep 1; done

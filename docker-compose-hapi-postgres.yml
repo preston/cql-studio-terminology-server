@@ -40,7 +40,10 @@ services:
     networks:
       - hapi-fhir_network
   hapi-fhir-terminology-postgresql:
-    image: docker.io/postgres:18
+    # When creating a new terminology server, use the Postgres image.
+    # image: docker.io/postgres:18
+    # When using a pre-built terminology server as-is, use the CQL Studio image.
+    image: p3000/cql-studio-terminology-database:latest
     environment:
       - POSTGRES_PASSWORD=password
     ports:

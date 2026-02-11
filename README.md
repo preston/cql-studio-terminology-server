@@ -23,6 +23,40 @@ When the scripts complete, HAPI FHIR will take a while to asyncronously finish p
 
 Please respect the terms and the content you load, particularly with regard to distribution permissions.
 
+# CodeSystem Version
+
+The `hapi-fhir-cli` upload process may not reliably populate `CodeSystem.version` from the source terminology files. If your tooling expects versioned CodeSystem references (e.g. CQL `using` statements with explicit versions), you may need to set these manually after loading.
+
+The following `curl` commands use FHIR PATCH (JSON Patch) to set or update the `version` and `content` (to `"complete"`) on each CodeSystem. They use `add` rather than `replace` because imported CodeSystems may not have these fields at all. Adjust the version values to match your imported content. Replace `2.81`, `20250901`, and `2026` if your terminology files use different releases.
+
+```bash
+# SNOMED CT
+curl -X PATCH "http://localhost:8282/fhir/CodeSystem/$(curl -s "http://localhost:8282/fhir/CodeSystem?url=http://snomed.info/sct" | jq -r '.entry[0].resource.id')" -H "Content-Type: application/json-patch+json" -d '[{"op": "add", "path": "/version", "value": "20250901"}, {"op": "replace", "path": "/content", "value": "complete"}]'
+
+# LOINC
+curl -X PATCH "http://localhost:8282/fhir/CodeSystem/$(curl -s "http://localhost:8282/fhir/CodeSystem?url=http://loinc.org" | jq -r '.entry[0].resource.id')" -H "Content-Type: application/json-patch+json" -d '[{"op": "add", "path": "/version", "value": "2.81"}, {"op": "replace", "path": "/content", "value": "complete"}]'
+
+# ICD-10-CM
+curl -X PATCH "http://localhost:8282/fhir/CodeSystem/$(curl -s "http://localhost:8282/fhir/CodeSystem?url=http://hl7.org/fhir/sid/icd-10-cm" | jq -r '.entry[0].resource.id')" -H "Content-Type: application/json-patch+json" -d '[{"op": "add", "path": "/version", "value": "2026"}, {"op": "replace", "path": "/content", "value": "complete"}]'
+```
+
+These commands require `jq`. If PATCH is not supported by your HAPI FHIR configuration, use a full `PUT` with the updated resource instead.
+
+# Creating ValueSet Resources
+
+To create ValueSet resources that include all codes from each CodeSystem, use these `curl` commands. Adjust the `version` in each compose include to match your imported content.
+
+```bash
+# SNOMED CT ValueSet (all codes)
+curl -X PUT "http://localhost:8282/fhir/ValueSet/snomed-ct" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"snomed-ct","url":"http://example.org/fhir/ValueSet/snomed-ct","name":"SNOMED CT 20250901","status":"active","compose":{"include":[{"system":"http://snomed.info/sct","version":"20250901"}]}}'
+
+# LOINC ValueSet (all codes)
+curl -X PUT "http://localhost:8282/fhir/ValueSet/loinc" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"loinc","url":"http://example.org/fhir/ValueSet/loinc","name":"LOINC 2.81","status":"active","compose":{"include":[{"system":"http://loinc.org","version":"2.81"}]}}'
+
+# ICD-10-CM ValueSet (all codes)
+curl -X PUT "http://localhost:8282/fhir/ValueSet/icd-10-cm" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"icd-10-cm","url":"http://example.org/fhir/ValueSet/icd-10-cm","name":"ICD-10-CM 2026","status":"active","compose":{"include":[{"system":"http://hl7.org/fhir/sid/icd-10-cm","version":"2026"}]}}'
+```
+
 # Attribution
 
 Preston Lee

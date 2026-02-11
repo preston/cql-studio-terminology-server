@@ -14,10 +14,17 @@ HAPI FHIR has a fairly large memory footprint. For these purposes, the Java-base
    * **LOINC** https://loinc.org/download
    * **ICD-10** https://www.cdc.gov/nchs/icd/icd-10-cm/files.html
 1. Install Docker Desktop, Podman Desktop, or compatible container runtime capable of running "compose" files, and make sure the compute resource settings permit enough:
-   * A large amount of RAM headroom, as HAPI FHIR JPA server can allocate a ton of memory, especially during large imports. We recommend 12GB+
+   * A large amount of RAM headroom, as HAPI FHIR JPA server can allocate a ton of memory, especially during large imports. We recommend 14GB+
    * Enough free disk space. Watch the server logs for disk space errors, as they may not cause the HAPI server to crash.
 1. Install `hapi-fhir-cli`. On macOS with brew, `brew install hapi-fhir-cli`
-1. Run the creation script with the paths to your terminology .zip files. For example: `./load-terminology-server.sh --snomed data/SnomedCT_ManagedServiceUS_PRODUCTION_US1000124_20250901T120000Z.zip --loinc data/Loinc_2.81.zip --icd10 data/icd10cm-table\ and\ index-2026.zip`
+1. Run the creation script with the paths to your terminology .zip files. For example:
+   
+```sh
+./load-terminology-server.sh \
+ --snomed data/SnomedCT_ManagedServiceUS_PRODUCTION_US1000124_20250901T120000Z.zip \
+ --loinc data/Loinc_2.81.zip \
+ --icd10 data/icd10cm-table\ and\ index-2026.zip
+```
 
 When the scripts complete, HAPI FHIR will take a while to asyncronously finish processing and indexing content, and could take 10+ minutes. Watch the server logs for progress. In the meantime, the server will remain running and ready to use at http://localhost:8282/fhir . Once your HAPI logs show it has finished processing, we recommend you cleanly stop both HAPI FHIR and Postgres containers and create a snapshot image of the Postgres database container. This will permit easy restoration and sharing with your team. You may alternatively want to alter our compose file to use file system bind mounts for the Postgres container, and use your operating system's normal file management tools.
 
@@ -48,13 +55,21 @@ To create ValueSet resources that include all codes from each CodeSystem, use th
 
 ```bash
 # SNOMED CT ValueSet (all codes)
-curl -X PUT "http://localhost:8282/fhir/ValueSet/snomed-ct" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"snomed-ct","url":"http://example.org/fhir/ValueSet/snomed-ct","name":"SNOMED CT 20250901","status":"active","compose":{"include":[{"system":"http://snomed.info/sct","version":"20250901"}]}}'
+curl -X PUT "http://localhost:8282/fhir/ValueSet/snomed-ct" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"snomed-ct","url":"http://cqlstudio.com/fhir/ValueSet/snomed-ct","name":"SNOMED CT 20250901","status":"active","compose":{"include":[{"system":"http://snomed.info/sct","version":"20250901"}]}}'
 
 # LOINC ValueSet (all codes)
-curl -X PUT "http://localhost:8282/fhir/ValueSet/loinc" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"loinc","url":"http://example.org/fhir/ValueSet/loinc","name":"LOINC 2.81","status":"active","compose":{"include":[{"system":"http://loinc.org","version":"2.81"}]}}'
+curl -X PUT "http://localhost:8282/fhir/ValueSet/loinc" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"loinc","url":"http://cqlstudio.com/fhir/ValueSet/loinc","name":"LOINC 2.81","status":"active","compose":{"include":[{"system":"http://loinc.org","version":"2.81"}]}}'
 
 # ICD-10-CM ValueSet (all codes)
-curl -X PUT "http://localhost:8282/fhir/ValueSet/icd-10-cm" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"icd-10-cm","url":"http://example.org/fhir/ValueSet/icd-10-cm","name":"ICD-10-CM 2026","status":"active","compose":{"include":[{"system":"http://hl7.org/fhir/sid/icd-10-cm","version":"2026"}]}}'
+curl -X PUT "http://localhost:8282/fhir/ValueSet/icd-10-cm" -H "Content-Type: application/fhir+json" -d '{"resourceType":"ValueSet","id":"icd-10-cm","url":"http://cqlstudio.com/fhir/ValueSet/icd-10-cm","name":"ICD-10-CM 2026","status":"active","compose":{"include":[{"system":"http://hl7.org/fhir/sid/icd-10-cm","version":"2026"}]}}'
+```
+
+## Deleting ValueSet Resources
+
+```bash
+curl -X DELETE "http://localhost:8282/fhir/ValueSet/snomed-ct"
+curl -X DELETE "http://localhost:8282/fhir/ValueSet/loinc"
+curl -X DELETE "http://localhost:8282/fhir/ValueSet/icd-10-cm"
 ```
 
 # Attribution

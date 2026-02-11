@@ -20,15 +20,13 @@ services:
       - spring.jpa.properties.hibernate.search.enabled=true
       - spring.jpa.properties.hibernate.search.backend.type=lucene
       - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
-      - JAVA_TOOL_OPTIONS=-Xms2g -Xmx12g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+      - JAVA_TOOL_OPTIONS=-Xms2g -Xmx14g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
     ports:
       - 8282:8080
     volumes: []
     deploy:
       replicas: 1
       resources:
-        limits:
-          memory: 12G
         reservations:
           memory: 2G
       restart_policy:

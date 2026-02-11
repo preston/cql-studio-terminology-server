@@ -1,4 +1,0 @@
-services:
-  hapi-fhir-terminology-postgresql:
-    # When using a pre-built terminology server as-is, use the CQL Studio image.
-    image: p3000/cql-studio-terminology-database:latest

@@ -1,4 +1,4 @@
-TERMINOLOGY_HOST="localhost"
+TERMINOLOGY_HOST=localhost
 TERMINOLOGY_PORT=8282
 
 # Optional parameters

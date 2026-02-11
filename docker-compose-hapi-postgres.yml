@@ -1,0 +1,4 @@
+include:
+  - path:
+    - docker-compose-hapi-postgres-template.yml
+    - docker-compose-hapi-postgres-overrides.yml
